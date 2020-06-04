@@ -8,7 +8,9 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity implements GetRawData.OnDownloadComplete {
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements GetFlickrJsonData.OnDataAvailable {
     private static final String TAG = "MainActivity";
 
     @Override
@@ -28,9 +30,18 @@ public class MainActivity extends AppCompatActivity implements GetRawData.OnDown
         //     }
         // });
 
-        GetRawData getRawData = new GetRawData(this);
-        getRawData.execute("https://www.flickr.com/services/feeds/photos_public.gne?tags=android,nougat,sdk&tagmode=any&format=json&nojsoncallback=1");
+        // GetRawData getRawData = new GetRawData(this);
+        // getRawData.execute("https://www.flickr.com/services/feeds/photos_public.gne?tags=android,nougat,sdk&tagmode=any&format=json&nojsoncallback=1");
         Log.d(TAG, "onCreate: ends");
+    }
+
+    @Override
+    protected void onPostResume() {
+        Log.d(TAG, "onPostResume: starts");
+        super.onPostResume();
+        GetFlickrJsonData getFlickrJsonData = new GetFlickrJsonData(this, "https://www.flickr.com/services/feeds/photos_public.gne", "en-us", true);
+        getFlickrJsonData.executeOnSameThread("android, nougat");
+        Log.d(TAG, "onPostResume: ends");
     }
 
     @Override
@@ -58,12 +69,12 @@ public class MainActivity extends AppCompatActivity implements GetRawData.OnDown
     }
 
     @Override
-    public void onDownloadComplete(String data, DownloadStatus status) {
+    public void onDataAvailable(List<Photo> data, DownloadStatus status) {
         if (status == DownloadStatus.OK) {
-            Log.d(TAG, "onDownloadComplete: data is " + data);
+            Log.d(TAG, "onDataAvailable: data is " + data);
         } else {
             // download or processing failed
-            Log.d(TAG, "onDownloadComplete: failed with status " + status);
+            Log.d(TAG, "onDataAvailable: failed with status " + status);
         }
     }
 }
